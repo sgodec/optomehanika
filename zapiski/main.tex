@@ -1,0 +1,402 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{amstext}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\usepackage{amssymb} 
+\usepackage[dvipsnames]{xcolor}   
+\usepackage[utf8]{inputenc}
+\usepackage{geometry}
+ \geometry{
+ a4paper,
+ total={170mm,257mm},
+ left=20mm,
+ top=20mm,
+ }
+\usepackage{graphicx}
+\usepackage{titling}
+%physics
+\usepackage{braket} 
+%citing
+\usepackage[style=ieee]{biblatex}
+\addbibresource{main.bib}
+%hypersetup
+\hypersetup{
+    colorlinks = true,
+    linkcolor = black,
+    citecolor = green,
+    urlcolor  = blue
+}
+%background color
+\pagecolor{lightgray}  
+
+
+
+\title{Introduction to Optomechanics}
+\author{Simon Godec}
+\date{\today}
+
+\usepackage{fancyhdr}
+\fancypagestyle{plain}{%
+    \fancyhf{} 
+    \fancyfoot[R]{\includegraphics[width=4cm]{}}
+    \fancyfoot[L]{\thedate}
+    \fancyhead[L]{Optomechanics}
+    \fancyhead[R]{\theauthor}
+}
+\makeatletter
+\def\@maketitle{%
+  \newpage
+  \null
+  \vskip 1em%
+  \begin{center}%
+  \let \footnote \thanks
+    {\LARGE \@title \par}%
+    \vskip 1em%
+  \end{center}%
+  \par
+  \vskip 1em}
+\makeatother
+
+%\usepackage{cmbright}
+\usepackage{helvet}
+
+\newtheorem{theorem}{\texttt{Trditev}}[section]
+\newtheorem{primer}{\texttt{Primer}}[section]
+\newtheorem{definicija}{\texttt{Definicija}}[section]
+\begin{document}
+
+\maketitle
+
+\noindent\begin{tabular}{@{}ll}
+    Student & Simon Godec \ 282420202\\
+    Mentor & Marko Toroš (406 at J19, \ mail: \href{mailto:Marko.Toros@fmf.uni-lj.si}{\color{DarkOrchid}Marko.Toros@fmf.uni-lj.si} ) \\
+    Contact & \href{mailto:sg74586@student.uni-lj.si}{\texttt{{\color{DarkOrchid}sg74586@student.uni-lj.si}}}\\
+\end{tabular}
+
+\section{Introduction}
+Introduction has to exist! \\
+This are notes I am writing while studying \autocite{bowen2015quantum}.
+\section{Harmonic oscillator}
+We begin by describing and isolated quantum harmonic oscillator with mass $m$ and frequency $\omega$. The Hamiltonian of such system is
+\begin{equation}
+    \hat{H} = \frac{k \hat{q}^{2}}{2} + \frac{\hat{p^{2}}}{2m},
+\end{equation}
+where $\hat{q}$ and $\hat{p}$ are the position and momentum operators and $\omega^2 = k/m$. \\
+\\
+\noindent "Formally quantum harmonic oscillator lives in seperable Hilbert space $\mathcal{L}^{2}(\mathbb{R}, \mathrm{d}x)$ where it is described by wave function $\sim \psi(x) = \braket{x|\psi} \in \mathcal{L}(\mathbb{R})$ on which operators $\hat{p}, \hat{q} $ act. We will not get into formal definition of operators $\hat{p}, \hat{q} \text{ and } \hat{H}$ it is only esential to know that $\hat{H}$ is self adjoint operator with discrete spectrum $\sigma(\hat{H}) = \{(n+1/2) \hbar \omega \}_{n=0}^{\infty}$" \\
+
+\noindent One way to work with harmonic oscillator is with ladder operators $a, a^{\dag}$ called creation and annihilation operators which obey the Boson commutation relation 
+\begin{equation}
+    [a,a^{\dag}] = 1.
+\end{equation}
+If we veiw harmonic oscillator as a state with $n$ phonons then creation and anihilation operators add or substract phonons from the state $\ket{n}$, described by 
+\begin{align}
+    a \ket{n} \  &=  \ \sqrt{n} \ket{n-1}  \\
+    a^{\dag} \ket{n} \  &=  \ \sqrt{n+1} \ket{n+1}  
+\end{align}
+with the exception that $a \ket{0} = 0$, since it is not possible to subtract a phonon from an oscillator that is already in its ground state. \\
+
+\noindent We see that $\hat{n} = a^{\dag} a$ is an observable with eigenvalue $n$,
+\begin{equation}
+    \hat{n}\ket{n}= a^{\dag} a \ket{n} = n \ket{n}.
+\end{equation}
+The position and momentum operators are described by ladder operators as
+\begin{equation}
+\hat{q} &= \sqrt{\frac{\hbar}{2 m \omega}} (a^\dagger + a), 
+\quad 
+\hat{p} &= i\sqrt{\frac{\hbar m \omega}{2}}(a^\dagger - a) .
+\end{equation}
+The prefactors with dimensions are called the zero-point motion and the zero-point momentum. In quantum Optomechanics micromechanical oscillator might have mass and resonance frequency of the order of $m \sim 1~\mu \text{g}$ and $\omega / 2\pi \sim 1~\text{MHz}$ while nanomechanical oscillator might have mass of orders $m = 1~\text{pg}$ and frequencies of the order 1~GHz. As we will se later the quantum feature of harmonic oscillator only becomes evident if its possible to measure the motion with percision higher then zero-point motion. For the microparticles and nanoparticles 
+\begin{equation}
+    x_{zp}^{\text{micro}} =  \sqrt{\frac{\hbar}{2 m \omega}} \sim 10^{-17}~\text{m} \quad \text{and}  \quad
+    x_{zp}^{\text{nano}} =  \sqrt{\frac{\hbar}{2 m \omega}} \sim 10^{-14}~\text{m}
+\end{equation}
+We define dimensionless position $\hat{Q}$ and momentum $\hat{P}$ operators 
+\begin{align}
+\hat{Q} &= \frac{\hat{q}}{x_\text{zp}\sqrt{2}} 
+= \frac{1}{\sqrt{2}} (a^\dagger + a),  \\
+\hat{P} &= \frac{\hat{p}}{p_\text{zp}\sqrt{2}} 
+= \frac{i}{\sqrt{2}} (a^\dagger - a). 
+\end{align}
+It follows from commutation relation for $a$ and $a^{\dag}$
+\begin{equation}
+    [\hat{Q},\hat{P}] = i .
+\end{equation}
+Using Cauchy-Schwarz some algebraic manipulation and definition of $\sigma(\mathcal{O})^{2} = \braket{\mathcal{O}^{2}} - \braket{O}^{2} $  we get 
+\begin{equation}
+\sigma{(\hat{Q})} \ \sigma{(\hat{P})} \geq \frac{1}{2} |\braket{[\hat{Q},\hat{P}]}| = \frac{1}{2}.
+\end{equation}
+For excercise I decided to proof this: We begin by definition of $\sigma(\hat{Q}) = \sqrt{\braket{(\hat{Q}-\braket{\hat{Q}})^{2}}} = \sqrt{\braket{(\Delta \hat{Q})^{2}}}$ following Cauchy-Schwarz enequality $|\braket{\psi|\Delta \hat{Q} \Delta \hat{P}|\psi}|^{2} \leq  \braket{\psi|(\Delta \hat{Q})^{2}\psi} \braket{\psi|(\Delta \hat{P})^{2}\psi} = \sigma{(\hat{Q})}^{2} \ \sigma{(\hat{P})}^{2}$. Now we focus on the term $|\braket{\psi|\Delta \hat{Q} \Delta \hat{P}|\psi}|^{2}= |1/2 \braket{\psi|[\Delta \hat{Q} \Delta \hat{P} ] + \{\Delta \hat{Q} \Delta \hat{P} \} |\psi}|^{2} = 1/4  \braket{\psi|[\Delta \hat{Q} \Delta \hat{P} ]| \psi}\|^{2} + 1/4 \braket{\psi |\{\Delta \hat{Q} \Delta \hat{P} \} |\psi}|^{2} \geq 1/4\braket{\psi|[\Delta \hat{Q} \Delta \hat{P} ]| \psi}\|^{2}$.Here we used that any product of hermitian operators can be writen as sum of commutator and anticommutator where commutator is antihermitian and anitcomutator is hermitian therefore having real and imaginary expected values. \\
+
+\noindent The vairance of dimensionaless operators is given by
+\begin{equation}
+\sigma^2(\hat{Q}) = \sigma^2(\hat{P}) = \bar{n} + \frac{1}{2}.
+\label{eq:variance}
+\end{equation}
+We may also define dimensionless operators $\hat{Q}_\theta$ and $\hat{P}_\theta$ rotated by a phase angle $\theta$ from the position and momentum as
+\begin{subequations}
+\begin{align}
+\hat{Q}_\theta &= \frac{1}{\sqrt{2}} \left( a^\dagger e^{i\theta} + a e^{-i\theta} \right) 
+= \hat{Q} \cos \theta + \hat{P} \sin \theta, \label{eq:Qtheta} \\
+\hat{P}_\theta &= \frac{i}{\sqrt{2}} \left( a^\dagger e^{i\theta} - a e^{-i\theta} \right) 
+= \hat{P} \cos \theta - \hat{Q} \sin \theta, \label{eq:Ptheta}
+\end{align}
+\end{subequations}
+which also satisfy the commutation relation:
+\begin{equation}
+[\hat{Q}_\theta, \hat{P}_\theta] = i.
+\end{equation}
+Here I was thinking why do we care about rotated operators. As I understand this the phase space of the quantum harmonic oscillator given by $\braket{\hat{P}}$ and $\braket{\hat{Q}}$ is a semiclassical veiw with help of Wiegner distributions by rotating the operators we are creating observables in specific view of the system. To continue we write Hamiltonian in dimensionaless form 
+\begin{equation}
+\hat{H} = \frac{\hbar \omega}{2} (\hat{Q}^2 + \hat{P}^2)
+\quad \text{or} \quad
+\hat{H} = \hbar \omega a^\dagger a = \hbar \omega \hat{n},
+\end{equation}
+By going in to the Heisenberg picture and solving dynamics of operaotrs we get the solution of the quantum harmonic oscillator
+\begin{align}
+    \hat{Q}(t) &= \frac{1}{\sqrt{2}} \left( a^\dagger(t) + a(t) \right)
+           = \cos(\Omega t) \hat{Q}(0) + \sin(\Omega t) \hat{P}(0), \\[1mm]
+\hat{P}(t) &= \frac{i}{\sqrt{2}} \left( a^\dagger(t) - a(t) \right)
+           = \cos(\Omega t) \hat{P}(0) - \sin(\Omega t) \hat{Q}(0).
+\end{align}
+where Annihilation operator evolution is described by:
+\begin{equation}
+\dot{a}(t) = -i \Omega a(t) \quad \Rightarrow \quad a(t) = a(0) e^{-i\Omega t},
+\end{equation}
+\subsection{Thermal equilibrium statistics}
+
+For a harmonic oscillator-phonons in thermal equilibrium at temperature $T$, the occupancy of each energy level follows Bose--Einstein statistics
+\begin{equation}
+p(n) = \frac{e^{-\hbar \Omega n / k_B T}}{1 - e^{-\hbar \Omega / k_B T}},
+\end{equation}
+with $k_B$ the Boltzmann constant. The mean occupancy is
+\begin{equation}
+\bar{n} = \langle \hat{n} \rangle = \frac{1}{e^{\hbar \Omega / k_B T} - 1}.
+\end{equation}
+In the classical limit ($k_B T \gg \hbar \Omega$), this reduces to $\bar{n} \simeq \frac{k_B T}{\hbar \Omega}$. For micro- or nano-mechanical oscillators at room temperature, $\bar{n} \sim 10^4$--$10^7$, so classical description is often sufficient. For optical fields (visible light, $\Omega/2\pi \sim 5 \times 10^{14}$ Hz), $\bar{n} \sim 10^{-35}$, effectively in the ground state.  
+
+\noindent The point of this calculation is to show that optical fields at room temperature act as a cold bath in quantum optomechanics, capable of cooling mechanical oscillators to near their ground state.
+
+\subsection{Fluctuations and dissipation in a quantum harmonic oscillator}
+Here we focus on how to couple the harmonic ocilator to the environment in a realistic way. We need to do this so that we may perform measurment. Additionally environment noise will perturb the oscillator and introduce damping. We try to develope tools to describe such open system. \\
+
+\noindent First start classically, system with damping is usually modeled as Lengevin equation
+\begin{equation}
+    m \ddot{x}  + m \gamma \dot{x} - m \omega_{0}^{2}x = F(t),
+\end{equation}
+where $F(t)$ is a stohastic force that satisfy statistical properties $\braket{F(t)} = 0, \braket{F(t)F(t')}=2m\gamma k_{b}T\delta(t-t')$. In \autocite{bowen2015quantum} it states that the connection between $\gamma, F(t) \text{ and } T$ is given by \textit{fluctuation-dissipation theorem}. The idea behind this is that the same microscopic interactions that cause dissipation also produce fluctuations and equilibrium thermodynamics fixes the relationship between the two. The factor $2 m \gamma k_{b}T$ comes from the equipartion theorem. \\
+
+\noindent Here we also define the power spectral density $S_{hh}$ of funciton $h$ as 
+\begin{equation}
+    S_{hh}(\omega) = \lim_{\tau \to \infty} \frac{1}{\tau}\braket{h_{\tau}(\omega) h_{\tau}(\omega)^{*}},
+\end{equation}
+where $h_{\tau}(\omega) = \int_{-\tau/2}^{\tau /2} h(t') \mathrm{e}^{i\omega t'}\ \mathrm{d} t'$. Intuitively, the power spectral density represents how the signal’s power is distributed over frequency. There is a important connection between power density and correlation given by Wiener–Khinchin theorem for stationary process.
+\begin{equation}
+S_{hh}(\omega) 
+= \int_{-\infty}^{\infty} d\tau \, e^{i \omega \tau} \, \langle h^*(t+\tau) h(t) \rangle_{t=0} 
+= \int_{-\infty}^{\infty} d\omega' \, \langle h^*(-\omega) h(\omega') \rangle,
+\label{eq:PSD}
+\end{equation}
+For excercise we will derive equation \eqref{eq:PSD}. We start with the definition of power spectrum $\sim S_{hh}(\omega) = \lim_{\tau \to \infty} \frac{1}{\tau}\braket{h_{\tau}(\omega) h_{\tau}(\omega)^{*}} = \lim_{\tau \to \infty}\frac{1}{\tau} \int_{-\tau /2}^{\tau /2} \int_{-\tau /2}^{\tau /2}  \mathrm{e}^{i \omega (t-t')}\braket{h(t)^{*} h(t')}  \ \mathrm{d}t \mathrm{d}t'$ we introduce new variable $\mu = t'-t$ and due to stationary and markov property $h(t)h(t') = h(t) h(t + \mu) = h(0)h(\mu)$ we get
+\begin{equation*}
+\lim_{\tau \to \infty}\frac{1}{\tau} \int_{-\tau /2}^{\tau /2} \int_{-\tau /2+t'}^{\tau /2+t'}  \mathrm{e}^{i \omega (\mu)}\braket{h(0)^{*} h(\mu)} \ \mathrm{d} \mu \mathrm{d} t' = \frac{\tau}{\tau} \int_{-\infty}^{\infty} \mathrm{e}^{i \omega \mu}\braket{h(0)^{*} h(\mu)} \ \mathrm{d} \mu = S_{hh}(\omega)
+\end{equation*}
+for the second expression we write $h(\mu) = \frac{1}{2\pi} \int_{-\infty}^{\infty} h(\omega) \mathrm{e}^{-i\omega \mu} \ \mathrm{d} \omega$ and use definiton of dirac delta $\int_{-\infty}^{\infty}\mathrm{e}^{i(\omega - \omega') \tau} \mathrm{d} \tau =2\pi \delta (\omega-\omega')$
+\subsection{Quantum forcing of harmonic oscillator}
+We want to do derive similiar results for quantum harmonic oscillator coupled to thermal bath. The simplest think we can do is introduce coupling term $ \hat{V} = \hat{q} \hat{F}$ where $\hat{q}$ is the position of the harmonic oscillator and $\hat{F}$ is force excerted by bath. This two operators commute as the force acts randomly on the system. The Hamiltonian of such system is
+\begin{equation}
+    \hat{H} = \hat{H}_{0} + \hat{V},
+\end{equation}
+where $H_{0} = \hbar \omega \hat{a}^{\dag} \hat{a} + \hat{H}_{bath}$ and $H_{bath}$ is the Hamiltonian of the bath. For the derivation we will look at the probability that after time $t$ the system went from the inital state $\ket{\psi(0)} $ to ortogonal state $\ket{\psi_{f}}$. To study dynamics of both bath and the oscilator we move in to the interaction picture. The state of the combined system in the interaction picture evolves as
+\begin{equation}
+|\psi_I(t)\rangle = \hat{U}_0^\dagger(t) |\psi(t)\rangle = \hat{U}_I(t) |\psi(0)\rangle,
+\end{equation}
+where $\hat{U}_0(t) = e^{-i \hat{H}_0 t/\hbar}$ and $\hat{U}_I(t)$ is the interaction-picture evolution operator.The probability amplitude to find the system in a final energy eigenstate $|\psi_f\rangle$ is
+\begin{equation}
+A_{i \to f}(t) = \langle \psi_f | \psi(t) \rangle = \mathrm{e}^{-i E_f t / \hbar} \langle \psi_f | \psi_I(t) \rangle.
+\end{equation} 
+In this picture, the Hamiltonian becomes $\hat{H}_I(t) = \hat{U}_0^\dagger(t) \hat{H} \hat{U}_0(t) = \hat{V}_I(t)$, and the Schrödinger equation can be formally integrated to give the Dyson series:
+\begin{equation}
+|\psi_I(t)\rangle = |\psi(0)\rangle 
++ \frac{1}{i\hbar} \int_0^t d\tau_1 \, \hat{V}_I(\tau_1) |\psi(0)\rangle
++ \frac{1}{(i\hbar)^2} \int_0^t \int_0^{\tau_1} d\tau_1 d\tau_2 \, \hat{V}_I(\tau_1) \hat{V}_I(\tau_2) |\psi_I(\tau_2)\rangle + \dots
+\end{equation}
+We take the initial state of bath and oscillator to be seperable and the interaction is weak such that the states stay seperable during the evolution. (Kaj to pomeni v praksi?)
+\begin{equation}
+|\psi(0)\rangle = |\psi_{\text{sys}}(0)\rangle \otimes |\psi_{\text{bath}}(0)\rangle \equiv |n, j\rangle,
+\end{equation}
+we also say that the transition of bath is in some final ortogonal state $\ket{k}$ and the oscillator gains one phonon $\ket{n+1} \otimes \ket{k}$
+\begin{equation}
+\begin{align*}
+A_{i \to f}(t) / \mathrm{e}^{-i E_f t / \hbar}  &= \frac{1}{i \hbar} \int_0^t d\tau_1 \, \langle n+1, k | \hat{V}_I(\tau_1) | n, j \rangle = \frac{1}{i \hbar} \int_0^t d\tau_1 \, \langle n+1 | \hat{q}_I | n \rangle \, \langle k | \hat{F}_I(\tau_1) | j \rangle \\
+&= \frac{x_{\rm zp}}{i \hbar} \int_0^t d\tau_1 \, e^{i \omega \tau_1} \langle n+1 | a^\dagger + a | n \rangle \, \langle k | \hat{F}_I(\tau_1) | j \rangle = \frac{x_{\rm zp} \sqrt{n+1}}{i \hbar} \int_0^t d\tau_1 \, e^{i \omega \tau_1} \langle k | \hat{F}_I(\tau_1) | j \rangle,
+\end{align*}
+\end{equation}
+We used $\braket{\psi(0)|\hat{q}\hat{F}(t) \psi(0)} = \braket{\psi(0)|\hat{U}^{\dag}\hat{q}\hat{U} \hat{U}^{\dag}\hat{F}(t)\hat{U} \psi(0)}=  \braket{\psi(0)|\hat{U}^{\dag}\hat{q}\hat{U} \psi(0)}\otimes \braket{\psi(0) |\hat{U}^{\dag}\hat{F}(t)\hat{U} \psi(0)}$ \\
+Now we can calucalte the transition probability. The probability for the oscillator to transition from state $|n\rangle$ to 
+state $|n+1\rangle$ is
+\begin{equation}
+\begin{align*}
+P_{n \to n+1} &= \sum_k |A_{i \to f}(t)|^2 \\
+&= \frac{x_{\rm zp}^2 (n+1)}{\hbar^2} 
+\int_0^t \!\! d\tau_1 \int_0^t \!\! d\tau_2 \, e^{i \omega (\tau_2 - \tau_1)} 
+\sum_k \langle j | \hat{F}_I(\tau_1) | k \rangle \langle k | \hat{F}_I(\tau_2) | j \rangle \\
+&= \frac{x_{\rm zp}^2 (n+1)}{\hbar^2} 
+\int_0^t \!\! d\tau_1 \int_0^t \!\! d\tau_2 \, e^{i \omega (\tau_2 - \tau_1)} 
+\langle j| \hat{F}_I(\tau_1) \hat{F}_I(\tau_2) |j \rangle,
+\end{align*}
+\label{eq:Trans}
+\end{equation}
+where in the last step we used that $\hat{F}$ is Hermitian, 
+$\hat{F}^\dagger = \hat{F}$, and the completeness and orthonormality 
+of the bath states: $\sum_k |k\rangle \langle k| = \mathbb{I}$. I think authors of~\cite{bowen2015quantum} forgot to sum over $\ket{j}$ all possible states of thermal bath weighted with probability of being in such thermal state ? $\text{Tr}(\rho_{bath}\hat{F}(\tau_{1})\hat{F}(\tau_{2}))$.
+\subsection{Quantum power spectral density}
+The integral in~\eqref{eg:Trans} is a form of autocorrelation function and can be related to the force power spectral density via the Wiener--Khinchin theorem. The PSD of a general operator $\hat{O}$ is defined as
+\begin{equation}
+S_{OO}(\omega) \equiv \lim_{\tau \to \infty} \frac{1}{\tau} \left\langle \hat{O}^\dagger_\tau(\omega) \hat{O}_\tau(\omega) \right\rangle,
+\end{equation}
+where $\hat{O}_\tau(\omega)$ is the Fourier transform of $\hat{O}(t)$ over the window $[-\tau/2, \tau/2]$. For stationary operators, the Wiener--Khinchin theorem gives
+\begin{equation}
+S_{OO}(\omega) = \int_{-\infty}^{\infty} d\tau\, e^{i\omega \tau} \langle \hat{O}^\dagger(t+\tau) \hat{O}(t) \rangle_{t=0} 
+= \int_{-\infty}^{\infty} d\omega' \langle \hat{O}^\dagger(-\omega) \hat{O}(\omega') \rangle,
+\end{equation}
+and for the conjugate operator,
+\begin{equation}
+S_{O^\dagger O^\dagger}(\omega) = \int_{-\infty}^{\infty} d\tau\, e^{i\omega \tau} \langle \hat{O}(t+\tau) \hat{O}^\dagger(t) \rangle_{t=0} 
+= \int_{-\infty}^{\infty} d\omega' \langle \hat{O}(\omega) \hat{O}^\dagger(\omega') \rangle.
+\end{equation}
+Unlike classical variables, for which $h^*(t+\tau)h(t) = h(t)h^*(t+\tau)$, quantum operators 
+generally do not commute: $[\hat{O}^\dagger(t+\tau), \hat{O}(t)] \neq 0$. For instance, if 
+$\hat{O} = \hat{q}$ is the position of an isolated quantum harmonic oscillator, after a quarter period $\tau = \pi/(2\omega)$, $\hat{q}(t+\tau) = \hat{p}(t)$, which does not commute with $\hat{q}(t)$. The transition probability is expressed by making the substitutions $\tau_1 = t' + \tau$ and $\tau_2 = t'$ so that
+\begin{equation}
+P_{n \to n+1} = \frac{x_\mathrm{zp}^2 (n+1)}{\hbar^2} 
+\int_0^t dt' \int_{-t'}^{t-t'} d\tau \, e^{-i \omega \tau} \langle \hat{F}_I(t'+\tau) \hat{F}_I(t') \rangle.
+\label{eq:Pn_nplus1_corr}
+\end{equation}
+We say here that the integration time is larger then the correlation time approxemating result
+\begin{align}
+P_{n \to n+1} &= \frac{x_\mathrm{zp}^2 (n+1)}{\hbar^2} \int_0^t dt' \, S_{FF}(-\Omega) = \frac{x_\mathrm{zp}^2 (n+1)}{\hbar^2} \, t \, S_{FF}(-\omega),
+\label{eq:Pn_nplus1_PSD}
+\end{align}
+ We arrived at the result For short times such that $P_{n \to n+1} \ll 1$, the upwards transition rate from 
+$|n\rangle$ to $|n+1\rangle$ is
+\begin{equation}
+\gamma_{n \to n+1} = \frac{x_\mathrm{zp}^2}{\hbar^2} (n+1) \, S_{FF}(-\omega).
+\label{eq:gamma_up}
+\end{equation}
+Similarly, the downwards transition rate from $|n\rangle$ to $|n-1\rangle$ is
+\begin{equation}
+\gamma_{n \to n-1} = \frac{x_\mathrm{zp}^2}{\hbar^2} n \, S_{FF}(\omega).
+\label{eq:gamma_down}
+\end{equation}
+Detailed balance is a concept in thermodynamics which states that in equilibrium the total rate of transitions from one state to another must exactly balance the reverse rate.
+\begin{equation}
+p(1)\,\gamma_{1\to 2} = p(2)\,\gamma_{2\to 1},
+\label{eq:detailed_balance}
+\end{equation}
+where $p(1)$ and $p(2)$ are the occupation probabilities for states 1 and 2.  
+\begin{equation}
+\frac{p(n+1)}{p(n)} = \frac{\gamma_{n\to n+1}}{\gamma_{n+1\to n}}
+= \frac{S_{FF}(-\omega)}{S_{FF}(\omega)} =\exp\!\Big(\frac{k_B T}{\hbar \omega}\Big)
+= (1 + \frac{1}{\bar{n}})^{-1}
+\end{equation}
+where $\bar{n}$ is the mean thermal occupation number. We can also express temperature and mean value of phonons of such systmem in terms of frequency of the quantum oscillator.
+\begin{equation}
+T = \frac{\hbar \omega}{k_B} \left[ \ln \frac{S_{FF}(\omega)}{S_{FF}(-\omega)} \right]^{-1}, \quad \bar{n} = \frac{S_{FF}(-\omega)}{S_{FF}(\omega) - S_{FF}(-\omega)}, \label{eq:nbar_def}
+\end{equation}
+Let us consider an oscillator which, at some initial time, is out of equilibrium, with mean phonon occupancy
+\begin{equation}
+\bar{n}_b = \sum_{n=0}^{\infty} n\, p_n
+\label{eq:nbarb}
+\end{equation}
+The rate of change of such occupancy is
+\begin{equation}
+    \dot{\bar{n}}_b &= \sum_{n=0}^\infty n\, \dot{p}_n \rightarrow  \dot{\bar{n}}_b &= \gamma_\uparrow - (\gamma_\downarrow - \gamma_\uparrow) \bar{n}_b \equiv \gamma_\uparrow - \gamma \bar{n}_b, \\
+\gamma &\equiv \gamma_\downarrow - \gamma_\uparrow,
+\end{equation}
+ehre $\gamma_{n\to n+1} \equiv (n + 1) \gamma_{\uparrow}$ and $\gamma{n\to n−1} \equiv n \gamma_{\downarrowwn}$. Additionally $\gamma = \frac{x_{\rm zp}^2}{\hbar^2} \big( S_{FF}(\omega) - S_{FF}(-\omega) \big).$ Rexpresing this in terms of energy we get 
+\begin{align}
+\bar{n}_b = \frac{\bar{E}}{\hbar \omega} - \frac{1}{2} \quad  \rightarrow \quad   \dot{\bar{E}} = \frac{\hbar \omega}{2} (\gamma_\uparrow + \gamma_\downarrow) - \gamma \bar{E}  = \frac{1}{2m} \bar{S}_{FF}(\omega) - \gamma \bar{E}.
+\end{align}
+We get the quantum version of the classical power density result:
+\begin{equation}
+    \bar{S}_{FF}(\omega) = m \, \gamma \, \hbar \omega \, (2\bar{n} + 1).
+\end{equation}
+
+\subsection{Modelling open system dynamics via quantum Langevin equation}
+In this section the authors decide to model th open quantum system by modeling bath as large numbers of oscillators. The point of this is to derive equation for the oscillator without solving for the whole bath. \\
+
+\noindent We consider a quantum system in a potential $\hat{V}(\hat{q})$ that is spring-coupled to
+each of an ensemble of independent bath oscillators. In the independent oscillator mode the Hamiltonian is 
+\begin{equation}
+    \hat{H} = \hat{H}_{sys} + \hat{H}_{sys-bath},
+\end{equation}
+where
+\begin{equation}
+    \hat{H}_{sys} = \frac{\hat{p}^{2}}{2 m} + \hat{V}(\hat{q})  \ \text{and} \ \hat{H}_{sys-bath} = \sum_{j=1}^{} \{\frac{\hat{p}_{j}}{2m_{j}} + \frac{k_{j}}{2} (\hat{q}_{j} - \hat{q})^{2} \}
+\end{equation}
+We derive dynamics by solving system in Heisenberg picture. $\dot{\mathcal{O}}(t) = \frac{1}{i\hbar}[\mathcal{O}(t),\hat{H}(t)]$ for $\hat{p},\hat{q},  \hat{p}_{i}, \hat{q}_{i}$.
+We get $\dot{\hat{q}} = \frac{\hat{p}}{m}$ and $\dot{\hat{p}} = -\frac{\partial V}{\partial \hat{q}} + \sum_{i=1}^{}k_{i} (\hat{q}_{i}\hat{-q})$ similiar for all $i$ $\dot{\hat{q_{i}}} = \frac{\hat{p_{i}}}{m_{i}}$ and $\dot{\hat{p_{i}}} = - \sum_{i=1}^{}k_{i} (\hat{q}_{i}\hat{-q})$ resulting in equations
+\begin{equation}
+m \ddot{\hat q}
+= -\,\frac{\partial \hat V(\hat q)}{\partial \hat q}
++ \sum_{j} k_j \bigl(\hat q_j - \hat q\bigr),
+\label{eq:Qlang1}
+\end{equation}
+and 
+\begin{equation}
+m_j \ddot{\hat q}_j
+= -\,k_j \bigl(\hat q_j - \hat q\bigr).
+\label{eq:Qlang2}
+\end{equation}
+General sollution of equation~\eqref{eq:Qlang2} is of form
+\begin{equation}
+    \hat q_j(t)
+= \hat q^{\,h}_j(t)
++ \hat q(t)
+- \int_{-\infty}^{t}
+dt'\, \cos\!\bigl[\omega_j (t - t')\bigr]\, \dot{\hat q}(t')
+\end{equation}
+where
+\begin{equation}
+    \hat q^{\,h}_j(t)
+= \hat q_j(0)\cos(\omega_j t)
++ \frac{\hat p_j(0)}{\omega_j m_j}\sin(\omega_j t).
+\end{equation}
+Inserting solution for $q_{j}$ in to the equation~\eqref{eq:Qlang1} we get quantum Langevin equation
+\begin{equation}
+    m \ddot{\hat q}(t)
++ \int_{-\infty}^{t} dt'\, \mu(t - t')\, \dot{\hat q}(t')
++ \frac{\partial \hat V(\hat q)}{\partial \hat q}
+= \hat F(t),
+\end{equation}
+where $\mu(t)$ is a memory kernel, and
+\begin{equation}
+\hat F(t) = \sum_{j} k_j \hat q^{\,h}_j(t),
+\end{equation}
+The memory kernel $\mu(t)$ is given explicitly by
+\begin{equation}
+\mu(t) = \sum_j k_j \cos(\omega_j t)
+= \int_0^{\infty} \mathrm{d}\omega \, \rho(\omega) k(\omega) \cos(\omega t)
+\end{equation}
+where $\rho(\omega)$ is the density of oscillators in the bath.
+Tukaj nastopijo grde izpeljave ki sem jih za zdaj izpustil. Prvo poglavje je prebrano do konca. Bega me nekoliko razumevanje same rotating wave approximation in manka mi nekaj dejanskih primerov, da lahko umestim vso to teorijo
+
+
+
+
+
+
+
+
+\newpage
+
+\printbibliography
+
+
+
+
+\end{document}
+
+
