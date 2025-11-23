@@ -212,7 +212,7 @@ function simulate_and_plot()
     y = vec(Pss) ./ √2 
 
     h = fit(Histogram, (x, y), nbins=(50, 50))
-    heatmap!(ax[3], h.edges[1], h.edges[2], h.weights; colormap=:viridis)
+    heatmap!(ax[3], h.edges[1], h.edges[2], h.weights; colormap=:deepsea)
     ylims!(ax[3], -2, 2)  
     xlims!(ax[3], -2, 2)  
     ax[3].xlabel = L"\rho_X"
