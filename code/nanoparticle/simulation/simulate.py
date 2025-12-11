@@ -42,8 +42,8 @@ gamma = ((4 * np.pi / 3) * mg * ng * r**2) * vg * (1 + np.pi / 8) / params['m']
 params['dampingT'] = gamma * 0.1
 params['dampingR'] = gamma  * 0.1
 
-params['noiseT'] = 2 * kb * params['T'] * params['dampingT'] 
-params['noiseR'] = 2 * kb * params['T'] * params['dampingR'] 
+params['noiseT'] = 2 * kb * params['T'] * params['dampingT'] * 0.05
+params['noiseR'] = 2 * kb * params['T'] * params['dampingR'] * 0.05
 #params['I2'] = params['I1']
 #params['I3'] = 2 *params['I2']
 
