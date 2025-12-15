@@ -6,6 +6,34 @@ import time
 
 @nb.njit
 def rk2_ti_step(x, t, h, noise, fi, gi):
+    '''
+    Perform a single time-independent second-order Runge–Kutta step
+    for a stochastic differential equation.
+
+    Advances the state x by one time step h for the SDE
+        dx = f(x) dt + g(x) dW,
+    where f(x) is the deterministic drift and g(x) is the state-dependent
+    noise amplitude.
+
+    Parameters
+    x : ndarray
+        Current state vector.
+    t : float
+        Current time (not used explicitly)
+    h : float
+        Time step size.
+    noise : ndarray
+        Wiener increment dW for the current time step.
+    fi : callable
+        Deterministic drift function f(x).
+    gi : callable
+        Noise amplitude function g(x), which may depend on the state.
+
+    Returns
+    xstar : ndarray
+        Update
+    '''
+
     a21 = 1.0
     a31 = 0.5
     a32 = 0.5
@@ -26,6 +54,33 @@ def rk2_ti_step(x, t, h, noise, fi, gi):
 
 @nb.njit
 def rk4_ti_step(x, t, h, noise, fi, gi):
+    '''
+    Perform a single time-independent fourth-order Runge–Kutta step
+    for a stochastic differential equation.
+
+    Advances the state x by one time step h for the SDE
+        dx = f(x) dt + g(x) dW,
+    where f(x) is the deterministic drift and g(x) is the state-dependent
+    noise amplitude.
+
+    Parameters
+    x : ndarray
+        Current state vector.
+    t : float
+        Current time (not used explicitly)
+    h : float
+        Time step size.
+    noise : ndarray
+        Wiener increment dW for the current time step.
+    fi : callable
+        Deterministic drift function f(x).
+    gi : callable
+        Noise amplitude function g(x), which may depend on the state.
+
+    Returns
+    xstar : ndarray
+        Update
+    '''
     a21 =   2.71644396264860
     a31 = - 6.95653259006152
     a32 =   0.78313689457981
