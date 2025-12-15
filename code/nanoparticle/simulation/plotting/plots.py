@@ -95,7 +95,7 @@ def plot_power(dt, sol):
     
     plt.figure(figsize=(14,10))
     
-    for i in range(n_vars):
+    for i in range(n_vars // 2):
         data = sol[i, :, :] 
         
         P_list = []
@@ -158,7 +158,7 @@ def plot_combine(dt,t,sol):
         "#808000",
     ]
     
-    for i in range(n_vars):
+    for i in range(n_vars // 2):
         data = sol[i, :, :]  #
         P_list = []
         for repeat in range(data.shape[0]):
@@ -268,13 +268,13 @@ def plot_global_orientation(sol):
     plt.show()
     return 0
 
-def animate_orientation(sol,skip = 10**4,interval = 40):
-    c_a = np.cos(sol[3,0,::skip])
-    s_a = np.sin(sol[3,0,::skip])
-    c_b = np.cos(sol[4,0,::skip])
-    s_b = np.sin(sol[4,0,::skip])
-    c_g = np.cos(sol[5,0,::skip])
-    s_g = np.sin(sol[5,0,::skip])
+def animate_orientation(sol,skip = 10**3,interval = 100,end = 10**5):
+    c_a = np.cos(sol[3,0,:end:skip])
+    s_a = np.sin(sol[3,0,:end:skip])
+    c_b = np.cos(sol[4,0,:end:skip])
+    s_b = np.sin(sol[4,0,:end:skip])
+    c_g = np.cos(sol[5,0,:end:skip])
+    s_g = np.sin(sol[5,0,:end:skip])
     
     X1x = c_a * c_b * c_g - s_a * s_g
     X1y = c_a * s_g + c_b * c_g * s_a
@@ -327,12 +327,17 @@ def animate_orientation(sol,skip = 10**4,interval = 40):
         q3 = ax.quiver(0, 0, 0, X3x[i], X3y[i], X3z[i], color="b", linewidth=3)
 
         return q1, q2, q3
+    ani = FuncAnimation(fig, update, frames=T, interval=interval,blit=True)
 
-    ani = FuncAnimation(fig, update, frames=T, interval=interval)
-
-    ani.save("animation.mp4", writer="ffmpeg")
+    ani.save(
+    "animation.mp4",
+    writer="ffmpeg",
+    fps=30,
+    dpi=300,
+    extra_args=["-pix_fmt", "yuv420p"])
 
     plt.show()
     return ani
+
 
 
