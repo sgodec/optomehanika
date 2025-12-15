@@ -7,8 +7,9 @@ from sympy import symbols, Function, Matrix, cos, sin, exp, I, pi, sqrt, Rationa
 ''' This is a program which is used to calculate Hamiltonian flow d\dt (q,p) =  (𝜕H/𝜕p, -𝜕H/𝜕q) '''
 ##################################################################################################################################
 #Physical constants
-c = 299792458          # speed of light in m/s
+c0 = 299792458          # speed of light in m/s
 epsilon0 = 8.854187817e-12  # vacuum permittivity in F/m
+hbar = 1.05457182e-34 # hbar
 ##################################################################################################################################
 # we start by creating hamiltonian given parameters defined in main
 def create_hamiltonian(params):
@@ -95,7 +96,7 @@ def create_hamiltonian(params):
     term3_by = chi3 * sin(alpha)**2 * sin(beta)**2
     by_part = by**2 * (term1_by + term2_by + term3_by)
 
-    H_gradient = - (V * P) / (c * pi * w0**2 ) * I_beam * (bx_part + by_part)
+    H_gradient = - (V * P) / (c0 * pi * w0**2 ) * I_beam * (bx_part + by_part)
 
     # Translational kinetic energy
     T_trans = (p_x**2 + p_y**2 + p_z**2) / (2 * m)
@@ -141,14 +142,37 @@ def stack(list_of_array):
 # Here we generate numpy function derived from Hamiltonian 
 def generate_functions_from_hamiltonian(params):
     m = params['m']
+    V = params['V']
+
+    P = params['P']
+    lamb = params['lambda_']
+
+    w0 = params['w0']
+    z_R = params['z_R']
+    a1 = params['a1']
+
     I1 = params['I1']
     I2 = params['I2']
     I3 = params['I3']
+
+    chi1 = params['chi1']
+    chi2 = params['chi2']
+    chi3 = params['chi3']
+
     Gamma_c = params['dampingT']
     Gamma_a =params['dampingR']
+
     Noise_c = params["noiseT"]
     Noise_a = params["noiseR"]
 
+    psi = params['psi']
+    bx = np.cos(psi)
+    by = np.sin(psi)
+
+    sigma_R = np.pi**2 * V**2 / lamb**4
+    sigma_L = np.pi * w0**2 / 2
+    omega_L = 2 * np.pi * c0 / lamb
+    Gamma_s = sigma_R * P / (sigma_L * omega_L * hbar)
 
     H_func,propagator = hamilton_step(params)
 
@@ -182,17 +206,115 @@ def generate_functions_from_hamiltonian(params):
         random[10,:] = sin_g * dV_alpha + cos_g * dV_beta
         return random
 
+    @nb.njit
+    def noise_faster(x, random):
+        n = x.shape[1]
+
+        for j in range(n):
+            sb = np.sin(x[4, j])
+            cb = np.cos(x[4, j])
+            sg = np.sin(x[5, j])
+            cg = np.cos(x[5, j])
+
+            dVa = random[9, j]
+            dVb = random[10, j]
+            dVg = random[11, j]
+
+            random[9, j]  = -sb * cg * dVa + sb * sg * dVb + cb * dVg
+            random[10, j] =  sg * dVa + cg * dVb
+
+        return random
 
     @nb.njit
-    def damping(x):
+    def determenistic_scattering(x):
+        sin_a = np.sin(x[3,:])
+        sin_2a = np.sin(2 * x[3,:])
+        cos_a = np.cos(x[3,:])
+        cos_2a = np.cos(2 * x[3,:])
+        sin_b = np.sin(x[4,:])  
+        cos_b = np.cos(x[4,:])  
+        cos_2b = np.cos(2 * x[4,:])  
+        sin_g = np.sin(x[5,:])  
+        sin_2g = np.sin(2 * x[5,:])  
+        cos_g = np.cos(x[5,:])  
+        cos_2g = np.cos(2 * x[5,:])  
+
+        w_z =  w0 * np.sqrt(1 + (x[2,:]/z_R)**2)
+        u02 =  ((w0 / w_z)**2 * np.exp(-2 * (x[0,:]**2/a1 + x[1,:]**2*a1)/w_z**2))**2
+
         result  = np.zeros(x.shape)
-        result[6:9] = - Gamma_c * x[6:9]
-        result[9:12] = - Gamma_a * x[9:12]
+
+        #dp determenistic_scattering
+        result[8] =  16 * np.pi**2 * hbar * Gamma_s / (3 *lamb) * u02 * (1/2 * (by**2 - bx**2) * sin_2a * cos_b * sin_2g * (chi1**2 - chi2**2)  - 1/16 * cos_2g * (chi1**2-chi2**2) * (2 * (bx**2 -by**2) * cos_2a * (cos_2b+3) + 4 * sin_b**2)- 1/8 * (chi1**2 +  chi2**2 - 2 * chi3**2) * (2 * (bx**2-by**2)* cos_2a * sin_b**2 - cos_2b) + 3/8 * (chi1**2 + chi2**2) + 1/4 * chi3**2)
+
+        #dalpha determenistic_scattering
+        result[9] = 2 * np.pi * hbar * Gamma_s * bx * by / (3)* u02 * (-2 * sin_b**2 * cos_2g * (chi1 - chi2) * (chi1 + chi2 - 2* chi3) + cos_2b * (chi1**2 + 2*chi3 * (chi1 + chi2)- 4 * chi1 * chi2 + chi2**2-2*chi3**2 + 3 *chi1**2 -2* chi3 * (chi1 + chi2) - 4 * chi1 * chi2 + 3 * chi2**2 + 2 * chi3**2))
+
+        #dbeta determenistic_scattering
+        result[10] = 8 * np.pi * bx * by * hbar * Gamma_s / (3) * u02 * (sin_b * sin_g * cos_g * (chi1 -chi2) * (chi1 + chi2 - 2* chi3))
+
+        #dgamma determenistic_scattering
+        result[11] = 8 * np.pi * bx * by * hbar * Gamma_s / (3) * u02 * (cos_b * (chi1-chi2)**2)
+
         return result 
 
     @nb.njit
+    def damping(x):
+        result = np.zeros_like(x)
+        for i in range(6, 9):
+            result[i] = -Gamma_c * x[i]
+        for i in range(9, 12):
+            result[i] = -Gamma_a * x[i]
+        return result
+
+    
+
+    @nb.njit
     def step(x):
-        return g(x) - damping(x)
+        return g(x) + damping(x) + determenistic_scattering(x)
+
+        
+    @nb.njit
+    def step_faster(x):
+        out = g(x)
+
+        # damping 
+        for i in range(6, 9):
+            out[i] -= Gamma_c * x[i]
+
+        for i in range(9, 12):
+            out[i] -= Gamma_a * x[i]
+
+        sin_a = np.sin(x[3,:])
+        sin_2a = np.sin(2 * x[3,:])
+        cos_a = np.cos(x[3,:])
+        cos_2a = np.cos(2 * x[3,:])
+        sin_b = np.sin(x[4,:])  
+        cos_b = np.cos(x[4,:])  
+        cos_2b = np.cos(2 * x[4,:])  
+        sin_g = np.sin(x[5,:])  
+        sin_2g = np.sin(2 * x[5,:])  
+        cos_g = np.cos(x[5,:])  
+        cos_2g = np.cos(2 * x[5,:])  
+
+        w_z =  w0 * np.sqrt(1 + (x[2,:]/z_R)**2)
+        u02 =  ((w0 / w_z)**2 * np.exp(-2 * (x[0,:]**2/a1 + x[1,:]**2*a1)/w_z**2))**2
+
+
+        #dp determenistic_scattering
+        out[8] +=  16 * np.pi**2 * hbar * Gamma_s / (3 *lamb) * u02 * (1/2 * (by**2 - bx**2) * sin_2a * cos_b * sin_2g * (chi1**2 - chi2**2)  - 1/16 * cos_2g * (chi1**2-chi2**2) * (2 * (bx**2 -by**2) * cos_2a * (cos_2b+3) + 4 * sin_b**2)- 1/8 * (chi1**2 +  chi2**2 - 2 * chi3**2) * (2 * (bx**2-by**2)* cos_2a * sin_b**2 - cos_2b) + 3/8 * (chi1**2 + chi2**2) + 1/4 * chi3**2)
+
+        #dalpha determenistic_scattering
+        out[9] += 2 * np.pi * hbar * Gamma_s * bx * by / (3)* u02 * (-2 * sin_b**2 * cos_2g * (chi1 - chi2) * (chi1 + chi2 - 2* chi3) + cos_2b * (chi1**2 + 2*chi3 * (chi1 + chi2)- 4 * chi1 * chi2 + chi2**2-2*chi3**2 + 3 *chi1**2 -2* chi3 * (chi1 + chi2) - 4 * chi1 * chi2 + 3 * chi2**2 + 2 * chi3**2))
+
+        #dbeta determenistic_scattering
+        out[10] += 8 * np.pi * bx * by * hbar * Gamma_s / (3) * u02 * (sin_b * sin_g * cos_g * (chi1 -chi2) * (chi1 + chi2 - 2* chi3))
+
+        #dgamma determenistic_scattering
+        out[11] += 8 * np.pi * bx * by * hbar * Gamma_s / (3) * u02 * (cos_b * (chi1-chi2)**2)
+
+        return out
+
 
     @nb.njit
     def generate_random(M,N):
@@ -206,8 +328,103 @@ def generate_functions_from_hamiltonian(params):
         noise_all[11,:,:] = np.sqrt(I3 * Noise_a) * noise_all[11,:,:]
         return noise_all
 
-    return H,step,noise,generate_random,f
+    return H,step_faster,noise_faster,generate_random,f,#step_faster,noise_faster
 
+def build_params(overrides=None):
+    '''
+    Builds parameters for simulation
+    
+    Parameter
+    
+    overrides:dict
+            defines base parameters from which others are computed.
+    
+    Returns
+    
+    params:dict
+            parameters
+    '''
+
+    base = dict(
+        rho=2200,
+        a=2*80e-9,
+        h=2*80e-9,
+        T=300,
+        lambda_=1064e-9,
+        epsilon0=8.85e-12,
+        c=3e8,
+        P=200e-3,
+        a1=1.0,
+        psi=np.pi/3,
+        Pressure=1.0,
+    )
+
+    if overrides:
+        base.update(overrides)
+
+    p = dict(base)
+
+    
+    p['V'] = 2 * p['a']**2 * p['h'] / 3
+    a_reg = (3 * p['V'] / np.sqrt(2))**(1/3)
+    p['r'] = a_reg / 2
+    p['m'] = p['rho'] * p['V']
+    p['I0'] = (2/5) * p['m'] * p['r']**2
+
+    p['w0'] = p['lambda_'] / 1.3
+    p['z_R'] = np.pi * p['w0']**2 / p['lambda_']
+
+    a, h, rho = p['a'], p['h'], p['rho']
+    I = 2 * ((a**4 * h)/60 + (a**2 * h**3)/30) * rho
+    p['I1'] = I
+    p['I2'] = I
+    p['I3'] = (a**4 * h)/15
+
+    p['chi1'] = np.sqrt((-p['I1'] + p['I2'] + p['I3']) / p['I0'])
+    p['chi2'] = np.sqrt(( p['I1'] - p['I2'] + p['I3']) / p['I0'])
+    p['chi3'] = np.sqrt(( p['I1'] + p['I2'] - p['I3']) / p['I0'])
+
+    kb = 1.38e-23
+    mg = 29 * 1.66e-27
+
+    vg = np.sqrt((8/np.pi) * kb * p['T'] / mg)
+    ng = p['Pressure'] / (kb * p['T'])
+    gamma = ((4*np.pi/3) * mg * ng * p['r']**2) * vg * (1 + np.pi/8) / p['m']
+
+    p['dampingT'] = gamma 
+    p['dampingR'] = gamma 
+    p['noiseT'] = 2 * kb * p['T'] * p['dampingT'] 
+    p['noiseR'] = 2 * kb * p['T'] * p['dampingR'] 
+
+    return p
+params = build_params()
+params
+#H,step,noise,generate_random,f,step_faster,noise_faster  = generate_functions_from_hamiltonian(params)
+#import time
+#M = 10
+#x =np.random.randn(12,M)
+#step(x)
+#step_faster(x)
+#start = time.time()
+#step(x)
+#stop = time.time()
+#print(stop-start)
+#start = time.time()
+#step_faster(x)
+#stop = time.time()
+#print(stop-start)
+#print(sum(step(x) == step_faster(x)))
+#noise(x,x)
+#noise_faster(x,x)
+#start = time.time()
+#noise(x,x)
+#stop = time.time()
+#print(stop-start)
+#start = time.time()
+#noise_faster(x,x)
+#stop = time.time()
+#print(stop-start)
+#print(sum(noise_faster(x,x) == noise(x,x)))
 
 
 
