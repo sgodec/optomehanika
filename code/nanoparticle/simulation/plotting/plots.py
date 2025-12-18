@@ -210,7 +210,7 @@ def plot_global_orientation(sol):
     s_b = np.sin(sol[4,0,:])
     c_g = np.cos(sol[5,0,:])
     s_g = np.sin(sol[5,0,:])
-    
+    # euler angles transformed to global coordinate
     X1x = c_a * c_b * c_g - s_a * s_g
     X1y = c_a * s_g + c_b * c_g * s_a
     X1z =  -c_g * s_b
