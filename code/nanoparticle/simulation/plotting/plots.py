@@ -98,16 +98,13 @@ def plot_power(dt, sol):
     for i in range(n_vars // 2):
         data = sol[i, :, :] 
         
-        P_list = []
-        for repeat in range(data.shape[0]):
-            signal_i = data[repeat, :] - np.mean(data[repeat, :])
-            f, P = signal.periodogram(signal_i, fs=1/dt)
-            P_list.append(P)
-        
-        P_mean = np.mean(P_list, axis=0)
+        f, P_all = signal.periodogram(data - np.mean(data, axis=1, keepdims=True), fs=1/dt, axis=1)
+
+        P_mean = np.mean(P_all, axis=0)
         
         positive = f > 0
         plt.plot(f[positive] / 1000, P_mean[positive], label=variable_names[i],color = colors[i])
+
     
 
     plt.yscale("log")
@@ -160,12 +157,8 @@ def plot_combine(dt,t,sol):
     
     for i in range(n_vars // 2):
         data = sol[i, :, :]  #
-        P_list = []
-        for repeat in range(data.shape[0]):
-            signal_i = data[repeat, :] - np.mean(data[repeat, :])
-            f, P = signal.periodogram(signal_i, fs=1/dt)
-            P_list.append(P)
-        P_mean = np.mean(P_list, axis=0)
+        f, P_all = signal.periodogram(data - np.mean(data, axis=1, keepdims=True), fs=1/dt, axis=1)
+        P_mean = np.mean(P_all, axis=0)
         positive = f > 0
         axs["powerspectrum"].plot(f[positive] / 1000, P_mean[positive], label=variable_names[i], color=colors[i], lw=1.5)
     print("ploted powerspectrum")
